@@ -1,0 +1,95 @@
+blueprint:
+  name: Bug Zapper - Noon to Dawn with Rain Check
+  description: Turns on a switch at noon if weather is dry, turns off at dawn or when raining, and resumes after rain if noon was rainy.
+  domain: automation
+  input:
+    zapper_switch:
+      name: Bug Zapper Switch
+      selector:
+        entity:
+          domain: switch
+    weather_sensor:
+      name: Weather Condition Sensor
+      selector:
+        entity:
+          domain: sensor
+    rain_hold_helper:
+      name: Rain Hold Input Boolean
+      selector:
+        entity:
+          domain: input_boolean
+
+mode: single
+trigger:
+  - platform: time
+    at: "12:00:00"
+  - platform: state
+    entity_id: !input weather_sensor
+    from: "rainy"
+  - platform: sun
+    event: sunrise
+  - platform: state
+    entity_id: !input weather_sensor
+    to: "rainy"
+
+condition: []
+
+action:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: "0"  # Noon trigger
+          - condition: not
+            conditions:
+              - condition: state
+                entity_id: !input weather_sensor
+                state: "rainy"
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: !input zapper_switch
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input rain_hold_helper
+      - conditions:
+          - condition: trigger
+            id: "0"
+          - condition: state
+            entity_id: !input weather_sensor
+            state: "rainy"
+        sequence:
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input rain_hold_helper
+      - conditions:
+          - condition: trigger
+            id: "1"  # Rain stopped
+          - condition: state
+            entity_id: !input rain_hold_helper
+            state: "on"
+          - condition: sun
+            before: sunrise
+        sequence:
+          - service: switch.turn_on
+            target:
+              entity_id: !input zapper_switch
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input rain_hold_helper
+      - conditions:
+          - condition: or
+            conditions:
+              - condition: trigger
+                id: "2"  # Sunrise
+              - condition: trigger
+                id: "3"  # Starts raining
+          - condition: state
+            entity_id: !input zapper_switch
+            state: "on"
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input zapper_switch
+          - service: input_boolean.turn_off
+            target:
+              entity_id: !input rain_hold_helper
