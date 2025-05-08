@@ -1,0 +1,100 @@
+blueprint:
+  name: 👤✨ Person Detected Light Control (Grouped)
+  description: >
+    🔔 Triggers when a person is detected and it's nighttime (sunset to sunrise).
+    💡 Turns on different groups of lights (porch, front yard, driveway) if they are off.
+    ⏲️ Each group has its own configurable auto-off delay.
+    🚫 Cooldown prevents overlapping triggers.
+
+  domain: automation
+  input:
+    sensors:
+      name: 👤 Person Detection Sensors
+      description: Binary sensors to trigger the automation
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+
+    porch_lights:
+      name: 🔆 Porch Lights
+      description: Lights on the porch to control
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    porch_delay:
+      name: ⏱️ Porch Auto-Off Delay
+      default: "00:05:00"
+      selector:
+        duration: {}
+
+    front_yard_lights:
+      name: 🌼 Front Yard Lights
+      description: Lights in the front yard to control
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    front_yard_delay:
+      name: ⏱️ Front Yard Auto-Off Delay
+      default: "00:07:00"
+      selector:
+        duration: {}
+
+    driveway_lights:
+      name: 🚗 Driveway Lights
+      description: Lights in the driveway to control
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    driveway_delay:
+      name: ⏱️ Driveway Auto-Off Delay
+      default: "00:05:00"
+      selector:
+        duration: {}
+
+mode: single
+max_exceeded: silent
+
+trigger:
+  - platform: state
+    entity_id: !input sensors
+    to: "on"
+    for: "00:00:05"
+
+condition:
+  - condition: sun
+    after: sunset
+    before: sunrise
+
+action:
+  - variables:
+      light_groups:
+        - lights: !input porch_lights
+          delay: !input porch_delay
+        - lights: !input front_yard_lights
+          delay: !input front_yard_delay
+        - lights: !input driveway_lights
+          delay: !input driveway_delay
+
+  - repeat:
+      for_each: "{{ light_groups }}"
+      sequence:
+        - repeat:
+            for_each: "{{ repeat.item.lights }}"
+            sequence:
+              - condition: state
+                entity_id: "{{ repeat.item }}"
+                state: "off"
+              - service: light.turn_on
+                target:
+                  entity_id: "{{ repeat.item }}"
+              - delay: "{{ repeat.item.delay }}"
+              - condition: state
+                entity_id: "{{ repeat.item }}"
+                state: "on"
+              - service: light.turn_off
+                target:
+                  entity_id: "{{ repeat.item }}"
