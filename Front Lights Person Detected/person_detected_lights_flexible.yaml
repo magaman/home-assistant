@@ -1,10 +1,10 @@
 blueprint:
-  name: "👤✨ Person Detected Light Control (Flexible)"
+  name: "👤✨ Person Detected Light Control"
   description: >
-    📦 Version: 2.0.0
-    🔔 When a person is detected and it's nighttime (sunset to sunrise),
-    this automation turns on one or more lights if they are off,
-    waits a custom delay per light, and then turns them off if still on.
+    📦 Version: 3.0.0
+    🔔 Triggers when a person is detected between sunset and sunrise.
+    💡 Turns on specified lights if they are off.
+    ⏲️ Turns off lights after a specified delay.
 
   domain: automation
   input:
@@ -22,12 +22,12 @@ blueprint:
           domain: light
           multiple: true
 
-    delays:
-      name: "⏱️ Off Delays (one per light)"
-      description: List of durations matching each light (e.g., ['00:05:00', '00:07:00'])
-      default: []
+    delay:
+      name: "⏱️ Off Delay"
+      description: Duration to wait before turning off the lights.
+      default: "00:05:00"
       selector:
-        object: {}
+        duration: {}
 
 mode: single
 max_exceeded: silent
@@ -44,30 +44,13 @@ condition:
     before: sunrise
 
 action:
-  - variables:
-      light_list: !input lights
-      delay_list: !input delays
+  - service: light.turn_on
+    target:
+      entity_id: !input lights
 
-  - repeat:
-      for_each: "{{ range(0, light_list | length) }}"
-      sequence:
-        - variables:
-            light: "{{ light_list[repeat.index] }}"
-            delay: "{{ delay_list[repeat.index] | default('00:05:00') }}"
-        - condition: state
-          target:
-            entity_id: "{{ light }}"
-          state: "off"
-        - service: light.turn_on
-          target:
-            target:
-            entity_id: "{{ light }}"
-        - delay: "{{ delay }}"
-        - condition: state
-          target:
-            entity_id: "{{ light }}"
-          state: "on"
-        - service: light.turn_off
-          target:
-            target:
-            entity_id: "{{ light }}"
+  - delay: !input delay
+
+  - service: light.turn_off
+    target:
+      entity_id: !input lights
+
