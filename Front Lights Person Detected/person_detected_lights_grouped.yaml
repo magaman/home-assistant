@@ -24,6 +24,7 @@ blueprint:
 
     porch_lights:
       name: "Porch Lights"
+      default: []
       selector:
         entity:
           domain: light
@@ -43,6 +44,7 @@ blueprint:
 
     front_yard_lights:
       name: "Front Yard Lights"
+      default: []
       selector:
         entity:
           domain: light
@@ -62,6 +64,7 @@ blueprint:
 
     driveway_lights:
       name: "Driveway Lights"
+      default: []
       selector:
         entity:
           domain: light
@@ -90,13 +93,13 @@ condition:
 variables:
   light_groups: >
     {% set groups = [] %}
-    {% if use_porch %}
+    {% if use_porch and porch_lights | length > 0 %}
       {% set _ = groups.append({'lights': porch_lights, 'delay': porch_delay}) %}
     {% endif %}
-    {% if use_front_yard %}
+    {% if use_front_yard and front_yard_lights | length > 0 %}
       {% set _ = groups.append({'lights': front_yard_lights, 'delay': front_yard_delay}) %}
     {% endif %}
-    {% if use_driveway %}
+    {% if use_driveway and driveway_lights | length > 0 %}
       {% set _ = groups.append({'lights': driveway_lights, 'delay': driveway_delay}) %}
     {% endif %}
     {{ groups }}
@@ -121,4 +124,3 @@ action:
               - service: light.turn_off
                 target:
                   entity_id: "{{ repeat.item }}"
-
