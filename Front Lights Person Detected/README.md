@@ -1,21 +1,27 @@
-# 👤✨ Person Detected Light Control (Grouped)
+# 👤✨ Person Detected Light Control (Grouped, Optional)
 
 ## 📋 Overview
-This Home Assistant automation blueprint turns on groups of lights (porch, front yard, driveway) when a person is detected, but only if it is after sunset and before sunrise. Each group has its own configurable auto-off timer.
+This Home Assistant automation blueprint turns on selected groups of lights (porch, front yard, driveway) when a person is detected,
+but only if it’s within a user-defined time window (default: sunset to sunrise). Each group has its own auto-off delay.
+
+## 🛠️ Features
+- 🧠 Person detection via one or more binary sensors
+- 🔦 Control any combination of light groups
+- ⏱️ Individual auto-off delays per group
+- 🌙 Time window control (default sunset to sunrise)
+- 🛑 Cooldown prevention with `mode: single`
 
 ## 📁 Installation
-1. Copy the `person_detected_lights_grouped.yaml` file into your Home Assistant config folder under:
+1. Save `person_detected_lights_grouped.yaml` into:
    ```
    config/blueprints/automation/[your_name]/person_detected_lights_grouped.yaml
    ```
-2. Restart Home Assistant or go to *Settings → Automations & Scenes → Blueprints* and reload blueprints.
-3. Create a new automation using the "👤✨ Person Detected Light Control (Grouped)" blueprint.
+2. Restart Home Assistant or reload blueprints from the UI.
+3. Go to *Settings → Automations & Scenes → Blueprints → Create Automation* and select this blueprint.
 
 ## ⚙️ Options
-- **Person Detection Sensors**: One or more binary sensors that detect motion/person (e.g. cameras or motion sensors).
-- **Light Groups**: Separate inputs for Porch, Front Yard, and Driveway.
-- **Delays**: Each group has its own delay for how long to keep the lights on before turning them off.
+- **Person Detection Sensors**: Motion or person binary sensors.
+- **Enable Light Groups**: Choose which zones to use.
+- **Delays**: Customize shutoff time for each zone.
+- **Time Window**: Define when automation is allowed to run.
 
-## 🧠 Tips
-- Set a `mode: single` and `max_exceeded: silent` is included to avoid automation overlap.
-- The automation only runs during nighttime hours (sunset to sunrise).
