@@ -1,6 +1,7 @@
 blueprint:
   name: "👤✨ Person Detected Light Control (Grouped, Optional)"
   description: >
+    📦 Version: 1.0.0
     🔔 Triggers when a person is detected and it's nighttime (sunset to sunrise).
     💡 Turns on selected groups of lights (porch, front yard, driveway) if they are off.
     ⏲️ Each group has its own auto-off delay.
