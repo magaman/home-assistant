@@ -1,5 +1,5 @@
 blueprint:
-  name: 👤✨ Person Detected Light Control (Grouped, Optional)
+  name: "👤✨ Person Detected Light Control (Grouped, Optional)"
   description: >
     🔔 Triggers when a person is detected and it's nighttime (sunset to sunrise).
     💡 Turns on selected groups of lights (porch, front yard, driveway) if they are off.
@@ -10,62 +10,65 @@ blueprint:
   domain: automation
   input:
     sensors:
-      name: 👤 Person Detection Sensors
+      name: "👤 Person Detection Sensors"
       selector:
         entity:
           domain: binary_sensor
           multiple: true
 
     use_porch:
-      name: 🔆 Enable Porch Group
+      name: "🔆 Enable Porch Group"
       default: true
       selector:
         boolean: {}
 
     porch_lights:
-      name: Porch Lights
+      name: "Porch Lights"
       selector:
         entity:
           domain: light
           multiple: true
+
     porch_delay:
-      name: ⏱️ Porch Auto-Off Delay
+      name: "⏱️ Porch Auto-Off Delay"
       default: "00:05:00"
       selector:
         duration: {}
 
     use_front_yard:
-      name: 🌼 Enable Front Yard Group
+      name: "🌼 Enable Front Yard Group"
       default: true
       selector:
         boolean: {}
 
     front_yard_lights:
-      name: Front Yard Lights
+      name: "Front Yard Lights"
       selector:
         entity:
           domain: light
           multiple: true
+
     front_yard_delay:
-      name: ⏱️ Front Yard Auto-Off Delay
+      name: "⏱️ Front Yard Auto-Off Delay"
       default: "00:07:00"
       selector:
         duration: {}
 
     use_driveway:
-      name: 🚗 Enable Driveway Group
+      name: "🚗 Enable Driveway Group"
       default: true
       selector:
         boolean: {}
 
     driveway_lights:
-      name: Driveway Lights
+      name: "Driveway Lights"
       selector:
         entity:
           domain: light
           multiple: true
+
     driveway_delay:
-      name: ⏱️ Driveway Auto-Off Delay
+      name: "⏱️ Driveway Auto-Off Delay"
       default: "00:05:00"
       selector:
         duration: {}
@@ -87,13 +90,13 @@ condition:
 variables:
   light_groups: >
     {% set groups = [] %}
-    {% if (use_porch | default(true)) %}
+    {% if use_porch %}
       {% set _ = groups.append({'lights': porch_lights, 'delay': porch_delay}) %}
     {% endif %}
-    {% if (use_front_yard | default(true)) %}
+    {% if use_front_yard %}
       {% set _ = groups.append({'lights': front_yard_lights, 'delay': front_yard_delay}) %}
     {% endif %}
-    {% if (use_driveway | default(true)) %}
+    {% if use_driveway %}
       {% set _ = groups.append({'lights': driveway_lights, 'delay': driveway_delay}) %}
     {% endif %}
     {{ groups }}
@@ -118,3 +121,4 @@ action:
               - service: light.turn_off
                 target:
                   entity_id: "{{ repeat.item }}"
+
