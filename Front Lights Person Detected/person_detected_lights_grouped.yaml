@@ -1,11 +1,10 @@
 blueprint:
   name: 👤✨ Person Detected Light Control (Grouped, Optional)
   description: >
-    🔔 Triggers when a person is detected and it's within the active time window (default: sunset to sunrise).
+    🔔 Triggers when a person is detected and it's nighttime (sunset to sunrise).
     💡 Turns on selected groups of lights (porch, front yard, driveway) if they are off.
     ⏲️ Each group has its own auto-off delay.
     ✅ You can enable or disable each group independently.
-    🕒 The active time window is configurable.
     🚫 Cooldown prevents overlapping triggers.
 
   domain: automation
@@ -16,20 +15,6 @@ blueprint:
         entity:
           domain: binary_sensor
           multiple: true
-
-    start_time:
-      name: 🕒 Start Time
-      description: Time after which automation can run (default: sunset)
-      default: sunset
-      selector:
-        time: {}
-
-    end_time:
-      name: 🕒 End Time
-      description: Time before which automation can run (default: sunrise)
-      default: sunrise
-      selector:
-        time: {}
 
     use_porch:
       name: 🔆 Enable Porch Group
@@ -95,9 +80,9 @@ trigger:
     for: "00:00:05"
 
 condition:
-  - condition: time
-    after: !input start_time
-    before: !input end_time
+  - condition: sun
+    after: sunset
+    before: sunrise
 
 variables:
   light_groups: >
