@@ -90,21 +90,31 @@ condition:
     after: sunset
     before: sunrise
 
-variables:
-  light_groups: >
-    {% set groups = [] %}
-    {% if use_porch and porch_lights | length > 0 %}
-      {% set _ = groups.append({'lights': porch_lights, 'delay': porch_delay}) %}
-    {% endif %}
-    {% if use_front_yard and front_yard_lights | length > 0 %}
-      {% set _ = groups.append({'lights': front_yard_lights, 'delay': front_yard_delay}) %}
-    {% endif %}
-    {% if use_driveway and driveway_lights | length > 0 %}
-      {% set _ = groups.append({'lights': driveway_lights, 'delay': driveway_delay}) %}
-    {% endif %}
-    {{ groups }}
-
 action:
+  - variables:
+      use_porch: !input use_porch
+      porch_lights: !input porch_lights
+      porch_delay: !input porch_delay
+      use_front_yard: !input use_front_yard
+      front_yard_lights: !input front_yard_lights
+      front_yard_delay: !input front_yard_delay
+      use_driveway: !input use_driveway
+      driveway_lights: !input driveway_lights
+      driveway_delay: !input driveway_delay
+
+      light_groups: >
+        {% set groups = [] %}
+        {% if use_porch and porch_lights | length > 0 %}
+          {% set _ = groups.append({'lights': porch_lights, 'delay': porch_delay}) %}
+        {% endif %}
+        {% if use_front_yard and front_yard_lights | length > 0 %}
+          {% set _ = groups.append({'lights': front_yard_lights, 'delay': front_yard_delay}) %}
+        {% endif %}
+        {% if use_driveway and driveway_lights | length > 0 %}
+          {% set _ = groups.append({'lights': driveway_lights, 'delay': driveway_delay}) %}
+        {% endif %}
+        {{ groups }}
+
   - repeat:
       for_each: "{{ light_groups }}"
       sequence:
