@@ -6,6 +6,7 @@ For the on and off triggers you can choose either a fixed time or a sun event
 raining the zapper is turned off and it will automatically resume once the
 weather clears, as long as your chosen off time hasn't passed.
 
+
 ### 💡 Features
 - Select a time or sun event to turn the zapper **on**
 - Select a time or sun event to turn the zapper **off**
