@@ -1,12 +1,19 @@
-## 🐞 Bug Zapper - Noon to Dawn with Rain Check (v1.0)
+## 🐞 Bug Zapper - Flexible Schedule with Rain Check (v2.0)
 
-This Home Assistant automation blueprint turns on an outdoor bug zapper at **noon** if the weather is dry, turns it off at **dawn** or when it starts raining, and resumes after the rain if noon was rainy or the zapper was stopped by rain.
+This blueprint lets you run your outdoor bug zapper on your own schedule.
+For the on and off triggers you can choose either a fixed time or a sun event
+(sunrise, sunset, dawn or dusk) and mix them however you like. Dawn and dusk are
+based on the sun rising above or falling below 6° elevation. If it starts raining
+the zapper is turned off and it will automatically resume once the weather clears
+as long as your chosen off time hasn't passed.
 
 ### 💡 Features
-- Turns on a switch at **12:00 PM** if weather is not `rainy`
-- Turns **off at dawn** (sunrise) or immediately if it starts raining
-- If it was rainy at noon or rain stops the zapper later, it will turn the zapper **back on when the rain clears**, only before dawn
-- Uses an `input_boolean` helper to track rain-delayed activations
+- Select a time or sun event to turn the zapper **on**
+- Select a time or sun event to turn the zapper **off**
+- Mix time and sun triggers however you like (dawn/dusk use the sun's 
+  -6° elevation)
+- Pauses operation while raining and resumes when dry
+- Uses an `input_boolean` helper to track rain-delayed starts
 
 ---
 
@@ -19,9 +26,7 @@ This Home Assistant automation blueprint turns on an outdoor bug zapper at **noo
 ---
 
 ### 🛠️ Helper Setup
-
-Create this helper in `configuration.yaml` or via **Settings > Devices & Services > Helpers**:
-
+Create this helper in `configuration.yaml` or via **Settings → Devices & Services → Helpers**:
 ```yaml
 input_boolean:
   bug_zapper_rain_hold:
@@ -32,19 +37,18 @@ input_boolean:
 ---
 
 ### 📥 Installation
-
 1. Save the blueprint YAML file as:
-
-```
+```text
 config/blueprints/automation/[your_username]/bug_zapper_rain.yaml
 ```
-
-2. In Home Assistant, go to **Settings > Automations & Scenes > Blueprints > Import Blueprint**
-3. Choose **"Bug Zapper - Noon to Dawn with Rain Check (v1.0)"**
+2. In Home Assistant go to **Settings → Automations & Scenes → Blueprints → Import Blueprint**
+3. Choose **"Bug Zapper - Flexible Schedule with Rain Check (v2.0)"**
 4. Configure the automation:
    - **Bug Zapper Switch**: Your zapper plug/switch entity
    - **Weather Condition Sensor**: Your weather sensor (e.g., OpenWeather)
    - **Rain Hold Input Boolean**: The `input_boolean.bug_zapper_rain_hold` you created
+   - **Turn On Trigger** and **On Time**
+   - **Turn Off Trigger** and **Off Time**
 
 ---
 

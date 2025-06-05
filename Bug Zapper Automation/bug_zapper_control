@@ -1,8 +1,13 @@
 blueprint:
-  name: "Bug Zapper - Noon to Dawn with Rain Check (v1.0)"
+  name: "Bug Zapper - Flexible Schedule with Rain Check (v2.0)"
   description: >
-    📦 Version: 1.0.0
-    Turns on a switch at noon if weather is dry, turns off at dawn or when raining, and resumes after rain if noon was rainy.
+    📦 Version: 2.0.0
+    Runs the bug zapper on a flexible schedule. Pick either a fixed time or
+    sun event (sunrise, sunset, dawn or dusk) to turn it on and choose another
+    time or sun event to turn it off—you can mix and match. Dawn and dusk are
+    detected when the sun crosses -6° elevation. Includes a rain
+    check that pauses the zapper while raining and resumes once the weather
+    clears.
   domain: automation
   input:
     zapper_switch:
@@ -20,27 +25,110 @@ blueprint:
       selector:
         entity:
           domain: input_boolean
+    on_event:
+      name: Turn On Trigger
+      description: Event that turns the zapper on
+      default: time
+      selector:
+        select:
+          options:
+            - time
+            - sunrise
+            - sunset
+            - dawn
+            - dusk
+    on_time:
+      name: On Time
+      description: Time of day if the on trigger is "time"
+      default: "12:00:00"
+      selector:
+        time: {}
+    off_event:
+      name: Turn Off Trigger
+      description: Event that turns the zapper off
+      default: sunrise
+      selector:
+        select:
+          options:
+            - time
+            - sunrise
+            - sunset
+            - dawn
+            - dusk
+    off_time:
+      name: Off Time
+      description: Time of day if the off trigger is "time"
+      default: "06:00:00"
+      selector:
+        time: {}
 
 mode: single
+
+variables:
+  on_event: !input on_event
+  off_event: !input off_event
+  off_time: !input off_time
+
 trigger:
   - platform: time
-    at: "12:00:00"
+    at: !input on_time
+    id: on_time
+  - platform: sun
+    event: sunrise
+    id: on_sunrise
+  - platform: sun
+    event: sunset
+    id: on_sunset
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: -6
+    id: on_dawn
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -6
+    id: on_dusk
+  - platform: time
+    at: !input off_time
+    id: off_time
+  - platform: sun
+    event: sunrise
+    id: off_sunrise
+  - platform: sun
+    event: sunset
+    id: off_sunset
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: -6
+    id: off_dawn
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -6
+    id: off_dusk
   - platform: state
     entity_id: !input weather_sensor
     from: "rainy"
-  - platform: sun
-    event: sunrise
+    id: rain_stopped
   - platform: state
     entity_id: !input weather_sensor
     to: "rainy"
+    id: rain_started
 
 condition: []
 
 action:
   - choose:
-      - conditions:
-          - condition: trigger
-            id: "0"  # Noon trigger
+      - alias: Turn On
+        conditions:
+          - condition: template
+            value_template: >-
+              {{
+                (trigger.id == 'on_time' and on_event == 'time') or
+                (trigger.id == 'on_' + on_event)
+              }}
           - condition: not
             conditions:
               - condition: state
@@ -53,9 +141,14 @@ action:
           - service: input_boolean.turn_off
             target:
               entity_id: !input rain_hold_helper
-      - conditions:
-          - condition: trigger
-            id: "0"
+      - alias: Start Rainy
+        conditions:
+          - condition: template
+            value_template: >-
+              {{
+                (trigger.id == 'on_time' and on_event == 'time') or
+                (trigger.id == 'on_' + on_event)
+              }}
           - condition: state
             entity_id: !input weather_sensor
             state: "rainy"
@@ -63,14 +156,20 @@ action:
           - service: input_boolean.turn_on
             target:
               entity_id: !input rain_hold_helper
-      - conditions:
+      - alias: Resume After Rain
+        conditions:
           - condition: trigger
-            id: "1"  # Rain stopped
+            id: rain_stopped
           - condition: state
             entity_id: !input rain_hold_helper
             state: "on"
-          - condition: sun
-            before: sunrise
+          - condition: template
+            value_template: >-
+              {% if off_event == 'time' %}
+                {{ now() < today_at(off_time) }}
+              {% else %}
+                {{ now() < as_local(state_attr('sun.sun', 'next_' ~ off_event)) }}
+              {% endif %}
         sequence:
           - service: switch.turn_on
             target:
@@ -78,9 +177,10 @@ action:
           - service: input_boolean.turn_off
             target:
               entity_id: !input rain_hold_helper
-      - conditions:
+      - alias: Rain Started
+        conditions:
           - condition: trigger
-            id: "3"  # Starts raining
+            id: rain_started
           - condition: state
             entity_id: !input zapper_switch
             state: "on"
@@ -91,9 +191,14 @@ action:
           - service: input_boolean.turn_on
             target:
               entity_id: !input rain_hold_helper
-      - conditions:
-          - condition: trigger
-            id: "2"  # Sunrise
+      - alias: Turn Off
+        conditions:
+          - condition: template
+            value_template: >-
+              {{
+                (trigger.id == 'off_time' and off_event == 'time') or
+                (trigger.id == 'off_' + off_event)
+              }}
           - condition: state
             entity_id: !input zapper_switch
             state: "on"
