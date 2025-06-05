@@ -1,11 +1,11 @@
 ## 🐞 Bug Zapper - Noon to Dawn with Rain Check
 
-This Home Assistant automation blueprint turns on an outdoor bug zapper at **noon** if the weather is dry, and turns it off at **dawn** or if it starts raining. If it was raining at noon, it remembers this and will **turn the zapper on later** when the rain stops (as long as it's still before dawn).
+This Home Assistant automation blueprint turns on an outdoor bug zapper at **noon** if the weather is dry, turns it off at **dawn** or when it starts raining, and resumes after the rain if noon was rainy or the zapper was stopped by rain.
 
 ### 💡 Features
 - Turns on a switch at **12:00 PM** if weather is not `rainy`
 - Turns **off at dawn** (sunrise) or immediately if it starts raining
-- If it was rainy at noon, it will turn the zapper **on when the rain clears**, only before dawn
+- If it was rainy at noon or rain stops the zapper later, it will turn the zapper **back on when the rain clears**, only before dawn
 - Uses an `input_boolean` helper to track rain-delayed activations
 
 ---

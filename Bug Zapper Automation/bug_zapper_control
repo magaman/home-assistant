@@ -77,12 +77,21 @@ action:
             target:
               entity_id: !input rain_hold_helper
       - conditions:
-          - condition: or
-            conditions:
-              - condition: trigger
-                id: "2"  # Sunrise
-              - condition: trigger
-                id: "3"  # Starts raining
+          - condition: trigger
+            id: "3"  # Starts raining
+          - condition: state
+            entity_id: !input zapper_switch
+            state: "on"
+        sequence:
+          - service: switch.turn_off
+            target:
+              entity_id: !input zapper_switch
+          - service: input_boolean.turn_on
+            target:
+              entity_id: !input rain_hold_helper
+      - conditions:
+          - condition: trigger
+            id: "2"  # Sunrise
           - condition: state
             entity_id: !input zapper_switch
             state: "on"
