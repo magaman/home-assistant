@@ -1,7 +1,7 @@
 blueprint:
-  name: "👤✨ Person Detected Light Control"
+  name: "👤✨ Person Detected Light Control (v3.1.1)"
   description: >
-    📦 Version: 3.1.0
+    📦 Version: 3.1.1
     🔔 Triggers when a person is detected between sunset and sunrise.
     💡 Turns on specified lights if they are off.
     ⏲️ Turns off lights after a specified delay.

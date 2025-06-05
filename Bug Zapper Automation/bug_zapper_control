@@ -1,6 +1,8 @@
 blueprint:
-  name: Bug Zapper - Noon to Dawn with Rain Check
-  description: Turns on a switch at noon if weather is dry, turns off at dawn or when raining, and resumes after rain if noon was rainy.
+  name: "Bug Zapper - Noon to Dawn with Rain Check (v1.0)"
+  description: >
+    📦 Version: 1.0.0
+    Turns on a switch at noon if weather is dry, turns off at dawn or when raining, and resumes after rain if noon was rainy.
   domain: automation
   input:
     zapper_switch:
