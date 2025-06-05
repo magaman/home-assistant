@@ -4,7 +4,8 @@ blueprint:
     📦 Version: 2.0.0
     Runs the bug zapper on a flexible schedule. Pick either a fixed time or
     sun event (sunrise, sunset, dawn or dusk) to turn it on and choose another
-    time or sun event to turn it off—you can mix and match. Includes a rain
+    time or sun event to turn it off—you can mix and match. Dawn and dusk are
+    detected when the sun crosses -6° elevation. Includes a rain
     check that pauses the zapper while raining and resumes once the weather
     clears.
   domain: automation
@@ -78,11 +79,15 @@ trigger:
   - platform: sun
     event: sunset
     id: on_sunset
-  - platform: sun
-    event: dawn
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: -6
     id: on_dawn
-  - platform: sun
-    event: dusk
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -6
     id: on_dusk
   - platform: time
     at: !input off_time
@@ -93,11 +98,15 @@ trigger:
   - platform: sun
     event: sunset
     id: off_sunset
-  - platform: sun
-    event: dawn
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    above: -6
     id: off_dawn
-  - platform: sun
-    event: dusk
+  - platform: numeric_state
+    entity_id: sun.sun
+    attribute: elevation
+    below: -6
     id: off_dusk
   - platform: state
     entity_id: !input weather_sensor

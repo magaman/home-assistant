@@ -2,14 +2,16 @@
 
 This blueprint lets you run your outdoor bug zapper on your own schedule.
 For the on and off triggers you can choose either a fixed time or a sun event
-(sunrise, sunset, dawn or dusk) and mix them however you like. If it starts
-raining the zapper is turned off and it will automatically resume once the
-weather clears, as long as your chosen off time hasn't passed.
+(sunrise, sunset, dawn or dusk) and mix them however you like. Dawn and dusk are
+based on the sun rising above or falling below 6° elevation. If it starts raining
+the zapper is turned off and it will automatically resume once the weather clears
+as long as your chosen off time hasn't passed.
 
 ### 💡 Features
 - Select a time or sun event to turn the zapper **on**
 - Select a time or sun event to turn the zapper **off**
-- Mix time and sun triggers however you like
+- Mix time and sun triggers however you like (dawn/dusk use the sun's 
+  -6° elevation)
 - Pauses operation while raining and resumes when dry
 - Uses an `input_boolean` helper to track rain-delayed starts
 
