@@ -1,10 +1,13 @@
-## 🐞 Bug Zapper - Flexible Schedule with Rain Check (v2.0)
+## 🐞 Bug Zapper - Flexible Schedule with Rain Check (v2.1)
 
 This blueprint lets you run your outdoor bug zapper on your own schedule.
 For the on and off triggers you can choose either a fixed time or a sun event
 (sunrise, sunset, dawn or dusk) and mix them however you like. If it starts
 raining the zapper is turned off and it will automatically resume once the
-weather clears, as long as your chosen off time hasn't passed.
+weather clears, as long as your chosen off time hasn't passed. When using a
+time-based off trigger that crosses midnight (for example, on at sunset and off
+at 6:00 AM), the blueprint checks the next day's off time so the zapper can
+restart if the rain ends before then.
 
 
 ### 💡 Features
@@ -41,7 +44,7 @@ input_boolean:
 config/blueprints/automation/[your_username]/bug_zapper_rain.yaml
 ```
 2. In Home Assistant go to **Settings → Automations & Scenes → Blueprints → Import Blueprint**
-3. Choose **"Bug Zapper - Flexible Schedule with Rain Check (v2.0)"**
+3. Choose **"Bug Zapper - Flexible Schedule with Rain Check (v2.1)"**
 4. Configure the automation:
    - **Bug Zapper Switch**: Your zapper plug/switch entity
    - **Weather Condition Sensor**: Your weather sensor (e.g., OpenWeather)

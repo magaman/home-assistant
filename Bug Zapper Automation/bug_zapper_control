@@ -1,7 +1,7 @@
 blueprint:
-  name: "Bug Zapper - Flexible Schedule with Rain Check (v2.0)"
+  name: "Bug Zapper - Flexible Schedule with Rain Check (v2.1)"
   description: >
-    📦 Version: 2.0.0
+    📦 Version: 2.1.0
     Runs the bug zapper on a flexible schedule. Pick either a fixed time or
     sun event (sunrise, sunset, dawn or dusk) to turn it on and choose another
     time or sun event to turn it off—you can mix and match. Dawn and dusk are
@@ -166,7 +166,11 @@ action:
           - condition: template
             value_template: >-
               {% if off_event == 'time' %}
-                {{ now() < today_at(off_time) }}
+                {% set off_ts = as_timestamp(today_at(off_time)) %}
+                {% if off_ts < as_timestamp(now()) %}
+                  {% set off_ts = off_ts + 86400 %}
+                {% endif %}
+                {{ as_timestamp(now()) < off_ts }}
               {% else %}
                 {{ now() < as_local(state_attr('sun.sun', 'next_' ~ off_event)) }}
               {% endif %}
