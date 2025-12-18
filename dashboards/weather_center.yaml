@@ -1,0 +1,373 @@
+    title: Weather
+    path: weather
+    icon: ios:cloud-sun-rain-fill
+    sections:
+      - type: grid
+        cards:
+          - type: markdown
+            content: >-
+              {# --- WEATHER ALERTS SECTION --- #}
+
+              ## <ha-icon icon="mdi:weather-lightning"></ha-icon> Weather Alerts
+
+              {% set alerts = state_attr('sensor.nws_alerts_alerts', 'Alerts')
+              %}
+
+              {% if alerts %}
+
+              {% for alert in alerts %}
+
+              <ha-alert alert-type="error" title="{{ alert['Event'] }}">
+
+              <strong>{{ alert['Headline'] }}</strong><br>
+
+              <em>Expires: {{ alert['Expires'] }}</em>
+
+              </ha-alert>
+
+              {% endfor %}
+
+              {% else %}
+
+              <ha-alert alert-type="success">No active weather
+              alerts.</ha-alert>
+
+              {% endif %}
+
+
+              ---
+
+
+              {# --- POWERWALL STATUS SECTION --- #}
+
+              ## <ha-icon icon="mdi:shield-home"></ha-icon> Powerwall Status
+
+              {% set charge = states('sensor.solar_system_percentage_charged') |
+              float(0) | round(0) %}
+
+              {% set c_power = states('sensor.battery_charge_power') | float(0)
+              %}
+
+              {% set d_power = states('sensor.battery_discharge_power') |
+              float(0) %}
+
+              {% set storm_active =
+              is_state('binary_sensor.solar_system_storm_watch_active', 'on') %}
+
+              {% set last_upd =
+              states.sensor.solar_system_percentage_charged.last_updated %}
+
+
+              {# Simplified Flow Display #}
+
+              {% if c_power > 0 %}
+
+              {% set flow_text = "Charging: " ~ c_power ~ " kW" %}
+
+              {% elif d_power > 0 %}
+
+              {% set flow_text = "Discharging: " ~ d_power ~ " kW" %}
+
+              {% else %}
+
+              {% set flow_text = "Idle" %}
+
+              {% endif %}
+
+
+              {% if storm_active %}
+
+              <ha-alert alert-type="warning" title="Tesla Storm Watch Active">
+
+              The Powerwall is prioritizing a full charge to prepare for
+              potential grid instability.
+
+              </ha-alert>
+
+              {% if charge > 80 %}{% set color, icon = "success",
+              "mdi:battery-high" %}
+
+              {% elif charge > 25 %}{% set color, icon = "info",
+              "mdi:battery-medium" %}
+
+              {% else %}{% set color, icon = "error", "mdi:battery-low" %}
+
+              {% endif %}
+
+              <ha-alert alert-type="{{ color }}" title="Battery Level">
+
+              <ha-icon icon="{{ icon }}"></ha-icon> <strong>{{ charge
+              }}%</strong> — {{ flow_text }}
+
+              </ha-alert>
+
+              {% else %}
+
+              <ha-alert alert-type="success" title="System Normal">
+
+              Storm Watch is inactive. Powerwall is <strong>{{ flow_text
+              }}</strong>.
+
+              </ha-alert>
+
+              {% endif %}
+
+
+              <div style="text-align: right; font-size: 0.8em; color: grey;
+              margin-top: 10px;">
+
+              <ha-icon icon="mdi:clock-outline" style="--mdc-icon-size:
+              14px;"></ha-icon> Updated: {{ as_timestamp(last_upd) |
+              timestamp_custom('%-I:%M %p') }}
+
+              </div>
+            grid_options:
+              columns: 36
+              rows: auto
+          - type: markdown
+            content: >-
+              {{ state_attr('enhanced_input.space_weather_alert', 'long_text')
+              }}
+            grid_options:
+              columns: 36
+              rows: auto
+          - clock_size: medium
+            show_seconds: true
+            type: clock
+            grid_options:
+              columns: 6
+              rows: 2
+          - type: entity
+            entity: sensor.solar_system_grid_status
+            name:
+              type: entity
+            state_color: false
+          - type: custom:ring-tile
+            entity: sensor.openweathermap_wind_speed
+            name: Wind Speed
+            marker: sensor.openweathermap_wind_bearing
+            ring_type: compass_n
+            top_element: marker_dir
+            middle_element: value_with_unit
+          - type: custom:ring-tile
+            entity: sensor.openweathermap_wind_gust
+            name: Wind Gust
+            min: 0
+            max: 110
+            colour:
+              '20': ha_blue
+              '60': ha_red
+            ring_size: 2
+            middle_element: value_with_unit
+          - type: custom:ring-tile
+            entity: sensor.XXXXXXXXXX_usa_air_quality_index
+            ring_size: 2
+            name: Air Quality
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: weather.openweathermap
+                state:
+                  - pouring
+                  - rainy
+                  - lightning-rainy
+                  - lightning
+                  - hail
+            card:
+              type: custom:ring-tile
+              entity: sensor.openweathermap_rain
+              ring_size: 2
+              name: Rain
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: weather.openweathermap
+                state:
+                  - snowy
+                  - snowy-rainy
+            card:
+              type: custom:ring-tile
+              entity: sensor.openweathermap_snow
+              ring_size: 2
+              name: Snow
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: conditional
+            conditions:
+              - condition: state
+                entity: weather.openweathermap
+                state_not: pouring
+              - condition: state
+                entity: weather.openweathermap
+                state_not: rainy
+              - condition: state
+                entity: weather.openweathermap
+                state_not: lightning-rainy
+              - condition: state
+                entity: weather.openweathermap
+                state_not: lightning
+              - condition: state
+                entity: weather.openweathermap
+                state_not: hail
+              - condition: state
+                entity: weather.openweathermap
+                state_not: snowy
+              - condition: state
+                entity: weather.openweathermap
+                state_not: snowy-rainy
+            card:
+              type: custom:ring-tile
+              entity: sensor.openweathermap_uv_index
+              ring_size: 2
+              name: UV Index
+            grid_options:
+              columns: 6
+              rows: auto
+        column_span: 3
+      - type: grid
+        cards:
+          - show_current: true
+            show_forecast: false
+            type: weather-forecast
+            entity: weather.openweathermap
+            forecast_type: daily
+            secondary_info_attribute: humidity
+            grid_options:
+              columns: 12
+              rows: 2
+          - type: custom:hourly-weather
+            entity: weather.openweathermap
+            icons: true
+            show_precipitation_probability: false
+            show_precipitation_amounts: false
+            show_wind: 'false'
+            show_date: 'false'
+          - type: custom:clock-weather-card
+            entity: weather.openweathermap
+            hide_clock: true
+            date_pattern: ccc, d.MM.yy
+            animated_icon: true
+            hide_today_section: true
+          - type: custom:lunar-phase-card
+            entity: ''
+            12hr_format: true
+            calendar_modal: false
+            compact_view: true
+            default_card: base
+            hide_buttons: false
+            mile_unit: true
+            moon_position: left
+            number_decimals: 2
+            selected_language: en
+            show_background: true
+            southern_hemisphere: false
+            use_custom: false
+            use_default: true
+            use_entity: false
+            graph_config:
+              graph_type: default
+              y_ticks: false
+              x_ticks: false
+              show_time: true
+              show_current: true
+              show_highest: true
+              y_ticks_position: left
+              y_ticks_step_size: 30
+              time_step_size: 30
+            font_customize:
+              header_font_size: x-large
+              header_font_style: capitalize
+              header_font_color: ''
+              label_font_size: auto
+              label_font_style: none
+              label_font_color: ''
+              hide_label: false
+            latitude: 40.7870352
+            longitude: -73.0717497
+            location:
+              city: Town of Islip
+              country: United States
+            theme:
+              selected_theme: Mushroom Shadow
+            custom_background: >-
+              https://cdn.jsdelivr.net/gh/ngocjohn/lunar-phase-card@1.7.3/background/moon_bg_3.png
+          - type: vertical-stack
+            cards:
+              - type: custom:ring-tile
+                entity: sensor.openweathermap_pressure
+                ring_size: 2
+                name: Atmospheric Pressure
+                min: 950
+                max: 1050
+            grid_options:
+              columns: 6
+              rows: auto
+          - type: vertical-stack
+            cards:
+              - type: custom:ring-tile
+                entity: sensor.openweathermap_humidity
+                ring_size: 2
+                name: Humidity
+              - type: custom:ring-tile
+                entity: sensor.openweathermap_cloud_coverage
+                ring_size: 2
+                name: Cloud Coverage
+            grid_options:
+              columns: 6
+              rows: auto
+        column_span: 1
+      - type: grid
+        cards:
+          - type: iframe
+            url: >-
+              https://embed.windy.com/embed.html?type=map&location=coordinates&metricRain=default&metricTemp=default&metricWind=default&zoom=5&overlay=radar&product=radar&level=surface&lat=XXXXXX&lon=-XXXXXXXXX&pressure=true"    
+              frameborder="0"
+            aspect_ratio: 50%
+            grid_options:
+              columns: 24
+              rows: 8
+          - type: heading
+            heading: Details
+            heading_style: title
+          - type: custom:blitzortung-lightning-card
+            show_radar: false
+            show_map: true
+            show_history_chart: false
+            grid_color: var(--primary-text-color)
+            strike_color: var(--error-color)
+            auto_radar_max_distance: true
+            distance_entity: sensor.home_lightning_distance
+            counter_entity: sensor.home_lightning_counter
+            azimuth_entity: sensor.home_lightning_azimuth
+            period: 1h
+            lightning_detection_radius: 10
+            show_grid_labels: true
+            grid_options:
+              columns: 12
+              rows: auto
+            show_compass: false
+          - type: custom:blitzortung-lightning-card
+            show_radar: true
+            show_map: false
+            show_history_chart: true
+            grid_color: var(--primary-text-color)
+            strike_color: var(--error-color)
+            auto_radar_max_distance: true
+            distance_entity: sensor.home_lightning_distance
+            counter_entity: sensor.home_lightning_counter
+            azimuth_entity: sensor.home_lightning_azimuth
+            period: 1h
+            lightning_detection_radius: 10
+            show_grid_labels: true
+            grid_options:
+              columns: 12
+              rows: auto
+            show_compass: true
+        column_span: 2
+    cards: []
+  - type: sections
+    max_columns: 4
