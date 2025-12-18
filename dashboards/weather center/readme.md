@@ -9,6 +9,14 @@ This dashboard uses a grid-based section layout to display:
 * **Environmental Data:** Wind speed/direction, UV Index, Air Quality, and Moon Phases.
 * **Live Maps:** Interactive Windy.com radar and Blitzortung lightning strike tracking.
 
+### 📸 Screenshot Gallery
+| | | |
+|:---:|:---:|:---:|
+| <img src="screenshots/weather1.png" width="300"> | <img src="screenshots/weather2.png" width="300"> | <img src="screenshots/weather3.png" width="300"> |
+| **Full Dashboard Overview** <br> *Complete grid-based layout.* | **Severe Weather & Energy** <br> *NWS alerts and Powerwall status.* | **Space Weather Alert** <br> *Detailed flare and blackout risks.* |
+| <img src="screenshots/weather4.png" width="300"> | <img src="screenshots/weather5.png" width="300"> | <img src="screenshots/weather6.png" width="300"> |
+| **Quiet Space Weather** <br> *Status during low solar activity.* | **Live Tracking** <br> *Windy radar and lightning detection.* | **Dynamic Weather States** <br> *UI changes (e.g., Snow ring) based on conditions.* |
+
 ---
 
 ## 🧩 Dependencies
