@@ -1,4 +1,4 @@
-# 🌤️ Weather & Energy Dashboard
+# 🌤️ Weather Dashboard
 
 A comprehensive, high-density weather station for Home Assistant. This dashboard combines real-time meteorological data with energy status (Tesla Powerwall) and space weather alerts into a single, cohesive view.
 
@@ -56,7 +56,7 @@ The `iframe` card is pre-configured to embed a Windy.com radar centered on the N
 ## 🛠️ Setup Instructions
 1.  Ensure all **Integrations** are configured so your entity names match (or update the YAML to match your names).
 2.  Install the **Custom Cards** via HACS.
-3.  Copy the code from `weather_view.yaml` in this repo.
+3.  Copy the code from `weather_center.yaml` in this repo.
 4.  In your HA Dashboard, click **Edit Dashboard** -> **Manage Dashboards** -> **Resources** (verify custom cards are there).
 5.  Create a new View, click the three dots, select **Raw Configuration Editor**, and paste the code under the `views:` section.
 
