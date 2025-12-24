@@ -1,0 +1,76 @@
+alias: New automation
+description: >
+  Generates a concise alert using AI for high activity (G2/Kp>5.5 or high flare
+  risk), or clears the card when activity drops (Kp<4).
+triggers:
+  - entity_id: sensor.planetary_k_index
+    above: 5.5
+    id: high_kp_alert
+    trigger: numeric_state
+  - entity_id:
+      - sensor.m_class_1_day_probability
+    above: 50
+    id: high_m_flare_alert
+    trigger: numeric_state
+  - entity_id:
+      - sensor.m_class_1_day_probability
+    id: low_m_flare_alert
+    trigger: numeric_state
+    below: 50
+  - entity_id:
+      - sensor.planetary_k_index
+    below: 4
+    id: clear_kp_alert
+    trigger: numeric_state
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - high_kp_alert
+              - high_m_flare_alert
+        sequence:
+          - action: ai_task.generate_data
+            metadata: {}
+            data:
+              instructions: >-
+                You are a Space Weather Forecaster. Write a single, concise
+                alert in Home Assistant Markdown format, Start with the
+                <ha-alert> tag, using alert-type="warning" for any geomagnetic
+                watches, and alert-type="error" for any geomagnetic warnings.
+                Summarize the risk focusing on Geomagnetic Storms (Aurora)for
+                Holbrook, NY and Flare risk, use current information from NOAA
+                Space Weather
+                https://www.swpc.noaa.gov/communities/aurora-dashboard-experimental
+                . Include details on possible radio blackout impacts to craft
+                the message. Make the response so that it is readable with good
+                spacing and line breaks, do not include any other markdown codes
+                besides home assistants.
+
+
+                  Kp: {{ states('sensor.planetary_k_index') }} M-Flare: {{
+                  states('sensor.m_class_1_day_probability') }}% X-Flare: {{
+                  states('sensor.x_class_1_day_probability') }}%
+              entity_id: ai_task.google_ai_task_2_5_flash_lite
+              task_name: Space Weather Alert
+            response_variable: ai_alert_text
+          - action: enhanced_input.create_input_text
+            metadata: {}
+            data:
+              name: Space Weather Alert
+              text: "{{ ai_alert_text.data }}"
+      - conditions:
+          - condition: trigger
+            id:
+              - clear_kp_alert
+              - low_m_flare_alert
+        sequence:
+          - action: enhanced_input.create_input_text
+            metadata: {}
+            data:
+              name: Space Weather Alert
+              text: >-
+                <ha-alert alert-type="success"> 🌎 No active space weather
+                alerts 🌎</ha-alert>
+mode: single
